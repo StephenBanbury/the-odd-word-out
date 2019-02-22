@@ -1,0 +1,31 @@
+thead {
+    color: #337AB7
+}
+#container {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -50px;
+}
+#card {
+  position: fixed;
+  width: 550px;
+  height: 550px;
+  top:50%;
+  left: 50%;
+  margin-top: -275px;
+  margin-left: -275px;
+  background: whitesmoke;
+  border: 3px solid red; 
+}
+#target {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  border-width: 2px;
+  border-color: black;
+  background-color: red;
+}
+.counter {
+    color: royalblue;
+}

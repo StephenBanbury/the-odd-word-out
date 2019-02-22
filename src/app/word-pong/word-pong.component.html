@@ -1,0 +1,16 @@
+<div id="container" (document:keydown)="OnKeyEvent($event)">
+  <!-- <div id="container"> -->
+  <div id="card" (click)="OnMouseEvent($event)">
+    <div
+      id="target"
+      [ngStyle]="TargetStyle()"
+      (mouseenter)="OnMouseEvent($event)"
+      (mouseleave)="OnMouseEvent($event)"
+    ></div>
+  </div>
+  <div>
+    <h2 class="counter">Found target: {{ foundTarget }}</h2>
+    <h2 class="counter">Hits: {{ hit }}</h2>
+    <h2 class="counter">Misses: {{ miss }}</h2>
+  </div>
+</div>
