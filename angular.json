@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "follow-the-leader": {
+    "the-odd-word-out": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -50,18 +50,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "follow-the-leader:build"
+            "browserTarget": "the-odd-word-out:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "follow-the-leader:build:production"
+              "browserTarget": "the-odd-word-out:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "follow-the-leader:build"
+            "browserTarget": "the-odd-word-out:build"
           }
         },
         "test": {
@@ -95,7 +95,7 @@
         }
       }
     },
-    "follow-the-leader-e2e": {
+    "the-odd-word-out-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "architect": {
@@ -103,11 +103,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "follow-the-leader:serve"
+            "devServerTarget": "the-odd-word-out:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "follow-the-leader:serve:production"
+              "devServerTarget": "the-odd-word-out:serve:production"
             }
           }
         },
@@ -123,5 +123,5 @@
       }
     }
   },
-  "defaultProject": "follow-the-leader"
+  "defaultProject": "the-odd-word-out"
 }
