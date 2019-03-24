@@ -46,8 +46,8 @@ export class  WordPongComponent implements OnInit {
     // this.hit = 0;
     // this.miss = 0;
 
-    this.relatedWordNumber = 8;
-    this.unrelatedWordNumber = 4;
+    this.relatedWordNumber = 4;
+    this.unrelatedWordNumber = 8;
 
     this.relatedWords = new Array<string>();
     this.unrelatedWords = new Array<string>();
@@ -176,17 +176,22 @@ export class  WordPongComponent implements OnInit {
       // }
       case "mouseenter": {   
         this.temporaryGameObject = Object.assign({}, this.gameObjects[id]);
-        
+
+        this.gameObjects[id].xInc = 0;
+        this.gameObjects[id].yInc = 0;
+
         // The version below will ensure nested objects include. I'm not using it
         // at the moment because there may be a small performance hit.
         //this.temporaryGameObject = JSON.parse(JSON.stringify(this.gameObjects[id]));
 
-        this.gameObjects[id].background = "cyan";
+        //this.gameObjects[id].background = "cyan";
         //this.foundObject += 1;
         break;
       }
       case "mouseleave": {
-        this.gameObjects[id].background = this.temporaryGameObject.background;
+        this.gameObjects[id].xInc = this.temporaryGameObject.xInc;
+        this.gameObjects[id].yInc = this.temporaryGameObject.yInc;
+        //this.gameObjects[id].background = this.temporaryGameObject.background;
         break;
       }
     }
@@ -223,10 +228,10 @@ export class  WordPongComponent implements OnInit {
         }
 
         if(unrelated == unrelatedHits) {
-          this.nextLevel();
+          this.gameOver();
         }     
         if(related == relatedHits) {
-          this.gameOver();
+          this.nextLevel();
         }     
       }, 0.5 * 60);
   }
@@ -255,13 +260,13 @@ export class  WordPongComponent implements OnInit {
         gameObject.yPos + 50 >= myObject.yPos) {
         gameObject.isHit = true;
 
-        if (gameObject.isRelated) {
-          gameObject.background = "orange";     
+        if (!gameObject.isRelated) {
+          gameObject.background = "red";     
           this.relatedWords.push(gameObject.text);    
           //this.score += 1;        
         } else {
           //this.cardColor = "yellow";
-          gameObject.background = "red";      
+          gameObject.background = "orange";      
           this.unrelatedWords.push(gameObject.text);     
           //this.score -= 1;        
         }
