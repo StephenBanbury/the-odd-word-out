@@ -41,7 +41,7 @@ module.exports = ".row {\r\n  font-family: Arial, Helvetica, sans-serif;\r\n  te
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"row\">\r\n  <div>\r\n    <h1>\r\n      {{ title }}\r\n    </h1>\r\n    <app-odd-word-out></app-odd-word-out>\r\n  </div>\r\n</div>"
+module.exports = "<div class=\"row\">\r\n  <!-- <div> -->\r\n    <!-- <h1>\r\n      {{ title }}\r\n    </h1> -->\r\n    <app-odd-word-out></app-odd-word-out>\r\n  <!-- </div> -->\r\n</div>"
 
 /***/ }),
 
@@ -107,8 +107,6 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 
 
 
-// import * as PIXI from 'pixi.js'
-//import { Sprite, Application, Rectangle, Texture, Container, DisplayObject, Text } from 'pixi.js';
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -133,26 +131,6 @@ var AppModule = /** @class */ (function () {
 
 /***/ }),
 
-/***/ "./src/app/odd-word-out/game-object.model.ts":
-/*!***************************************************!*\
-  !*** ./src/app/odd-word-out/game-object.model.ts ***!
-  \***************************************************/
-/*! exports provided: GameObject */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GameObject", function() { return GameObject; });
-var GameObject = /** @class */ (function () {
-    function GameObject() {
-    }
-    return GameObject;
-}());
-
-
-
-/***/ }),
-
 /***/ "./src/app/odd-word-out/odd-word-out.component.css":
 /*!*********************************************************!*\
   !*** ./src/app/odd-word-out/odd-word-out.component.css ***!
@@ -171,7 +149,7 @@ module.exports = "/* thead {\r\n    color: #337AB7\r\n} */\r\n/* #container {\r\
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<h2>Seek out words or phrases related to \"{{seedWord}}\". Avoid those that are unrelated.</h2>\r\n<span id=\"container\" (document:keydown)=\"onKeyEvent($event)\">\r\n  \r\n  <div #pixiContainer (click)=\"onMouseEvent($event)\"></div>\r\n\r\n  <div id=\"card\" class=\"center\" [style.background-color]=\"cardColor\" (click)=\"onMouseEvent($event)\">\r\n    <h1>{{message}}</h1>\r\n    <div *ngFor=\"let gameObject of gameObjects\">\r\n        <div\r\n          id=\"{{gameObject.id}}\"\r\n          class=\"flex-container ball\"\r\n          [ngClass]=\"gameObject.className\"\r\n          [ngStyle]=\"objectStyle(gameObject.id)\"\r\n          (mouseenter)=\"onMouseEvent($event)\"\r\n          (mouseleave)=\"onMouseEvent($event)\"\r\n          [innerText]=\"gameObject.text\"\r\n        ></div>\r\n    </div>\r\n  </div>\r\n  <!-- <div *ngFor=\"let related of relatedWords\" [innerText]=related>    \r\n  </div>\r\n  <div *ngFor=\"let unrelated of unrelatedWords\" [innerText]=unrelated>    \r\n  </div> -->\r\n  <!-- <div>\r\n    <h2 class=\"counter\">Found target: {{ foundObject }}</h2>\r\n    <h2 class=\"counter\">Hits: {{ hit }}</h2>\r\n    <h2 class=\"counter\">Misses: {{ miss }}</h2>\r\n  </div> -->\r\n</span>\r\n"
+module.exports = "<h2>Seek out words or phrases related to \"{{seedWord}}\". Avoid those that are unrelated.</h2>\r\n<span id=\"container\" (document:keydown)=\"onKeyDown($event)\" (document:keyup)=\"onKeyUp()\">\r\n  \r\n  <div #pixiContainer (click)=\"onMouseEvent($event)\"></div>\r\n\r\n  <!-- <div id=\"card\" class=\"center\" [style.background-color]=\"cardColor\" (click)=\"onMouseEvent($event)\">\r\n    <h1>{{message}}</h1>\r\n  </div> -->\r\n</span>\r\n"
 
 /***/ }),
 
@@ -186,7 +164,7 @@ module.exports = "<h2>Seek out words or phrases related to \"{{seedWord}}\". Avo
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "OddWordOutComponent", function() { return OddWordOutComponent; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var _game_object_model__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./game-object.model */ "./src/app/odd-word-out/game-object.model.ts");
+/* harmony import */ var _player_object_model__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./player-object.model */ "./src/app/odd-word-out/player-object.model.ts");
 /* harmony import */ var _shared_word_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../shared/word-service */ "./src/app/shared/word-service.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -207,103 +185,265 @@ var OddWordOutComponent = /** @class */ (function () {
         // this.hit = 0;
         // this.miss = 0;
         this.wordService = wordService;
-        this.xMin = 2;
-        this.yMin = 2;
-        this.xMax = 617;
-        this.yMax = 617;
-        this.movementStarted = true;
+        this.xMax = 800;
+        this.yMax = 800;
         this.movementPaused = false;
         //public foundObject: number;
         //public hit: number;
         //public miss: number;
         //public score: number;
         this.cardColor = "lightyellow";
-        this.gameObjects = Array();
+        this.players = Array();
         this.relatedWordNumber = 4;
         this.unrelatedWordNumber = 8;
         this.relatedWords = new Array();
         this.unrelatedWords = new Array();
-        this.gameObjectNumber = 0;
+        this.playerObjectNumber = 0;
         this.notRelatedNumber = 0;
-        this.gameObjects = new Array();
+        this.players = new Array();
     }
     OddWordOutComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.app = new PIXI.Application({
-            width: window.innerWidth,
-            height: window.innerHeight,
-            backgroundColor: 0x1099bb
-        });
-        var loader = PIXI.loaders.Loader;
-        //this.loader.add("./images/boy1.jpg");//.load(this.setup);
         this.seedWord = this.wordService.randomWord(1, "")[0];
         var unrelatedWords = this.wordService.randomWord(this.unrelatedWordNumber, this.seedWord);
         this.wordService.getThesaurus(this.seedWord).subscribe(function (thesaurus) {
-            _this.setUpGame(thesaurus, unrelatedWords);
+            _this.setupGame(thesaurus, unrelatedWords);
+        });
+        this.keyPress = false;
+        // PixiJS
+        this.app = PIXI.Application;
+        this.loader = PIXI.loader;
+        this.resources = this.loader.resources;
+        this.Sprite = PIXI.Sprite;
+        this.text = PIXI.Text;
+        this.player = PIXI.Sprite;
+        this.app = new PIXI.Application({
+            width: 800,
+            height: 800,
+            backgroundColor: 0x1099bb
         });
         this.pixiContainer.nativeElement.appendChild(this.app.view);
+        this.loader
+            .add("../../assets/images/boy1.jpg")
+            .add("../../assets/images/boy2.jpg")
+            .on("progress", this.handleLoadProgress)
+            .on("load", this.handleLoadAsset)
+            .on("error", this.handleLoadError)
+            .load(this.setupPixi.bind(this));
     };
-    //setup() {
-    //return null;
-    //}
-    OddWordOutComponent.prototype.setUpGame = function (thesaurus, nonRelatedWords) {
+    OddWordOutComponent.prototype.handleLoadProgress = function (loader, resource) {
+        console.log("loaded " + resource.url + ". Loading is " + loader.progress + "% complete.");
+    };
+    OddWordOutComponent.prototype.handleLoadAsset = function (loader, resource) {
+        console.log("Asset loaded " + resource.name);
+    };
+    OddWordOutComponent.prototype.handleLoadError = function () {
+        console.log("Load error");
+    };
+    OddWordOutComponent.prototype.setupGame = function (thesaurus, nonRelatedWords) {
         var _this = this;
         var nouns = thesaurus.noun.syn.slice(0, this.relatedWordNumber);
         console.log(nouns);
-        this.newGameObject("ball", "lightgreen", this.seedWord, true, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), 0, 0);
+        this.newPlayerObject("myPlayer", this.seedWord, true, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), 0, 0);
         nouns.forEach(function (noun) {
-            _this.newGameObject("obstacle", "lightblue", noun, true, _this.randomGenerator(1, _this.xMax), _this.randomGenerator(1, _this.yMax), _this.randomGenerator(-2, 2), _this.randomGenerator(-2, 2));
+            _this.newPlayerObject("otherPlayer", noun, true, _this.randomGenerator(1, _this.xMax), _this.randomGenerator(1, _this.yMax), _this.randomGenerator(-2, 2), _this.randomGenerator(-2, 2));
         });
         nonRelatedWords.forEach(function (word) {
-            _this.newGameObject("obstacle", "lightblue", word, false, _this.randomGenerator(1, _this.xMax), _this.randomGenerator(1, _this.yMax), _this.randomGenerator(-2, 2), _this.randomGenerator(-2, 2));
+            _this.newPlayerObject("otherPlayer", word, false, _this.randomGenerator(1, _this.xMax), _this.randomGenerator(1, _this.yMax), _this.randomGenerator(-2, 2), _this.randomGenerator(-2, 2));
         });
-        // this.newGameObject("obstacle", "lightblue", "aqua", false, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), this.randomGenerator(-2, 2), this.randomGenerator(-2, 2));
-        // this.newGameObject("obstacle", "lightblue", "feline", false, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), this.randomGenerator(-2, 2), this.randomGenerator(-2, 2));
-        this.gameObjects.forEach(function (obj) { return !obj.isRelated ? _this.notRelatedNumber++ : false; });
-        this.startMovement();
+        this.players.forEach(function (obj) { return !obj.isRelated ? _this.notRelatedNumber++ : false; });
     };
-    OddWordOutComponent.prototype.objectStyle = function (id) {
-        var object = this.gameObjects[id];
-        return {
-            "top": object.yPos + "px",
-            "left": object.xPos + "px",
-            "background": "" + object.background,
-        };
+    // TODO combine setupPixi and setupGame
+    OddWordOutComponent.prototype.setupPixi = function () {
+        var _this = this;
+        var playerStyle = new PIXI.TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 28,
+            fontStyle: 'italic',
+            fontWeight: 'bold',
+            fill: ['#ffffff', '#00ff99'],
+            stroke: '#4a1850',
+            strokeThickness: 5,
+            dropShadow: true,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 4,
+            dropShadowAngle: Math.PI / 6,
+            dropShadowDistance: 6,
+            wordWrap: true,
+            wordWrapWidth: 440
+        });
+        var opponentStyle = new PIXI.TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 24,
+            fontStyle: 'italic',
+            fontWeight: 'bold',
+            fill: ['#ffffff', '#66ff99'],
+            stroke: '#4a1850',
+            strokeThickness: 5,
+            dropShadow: false,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 4,
+            dropShadowAngle: Math.PI / 6,
+            dropShadowDistance: 6,
+            wordWrap: true,
+            wordWrapWidth: 440
+        });
+        for (var i = 0; i < this.players.length; i++) {
+            var player = i === 0
+                ? new this.Sprite(this.resources["../../assets/images/boy2.jpg"].texture)
+                : new this.Sprite(this.resources["../../assets/images/boy1.jpg"].texture);
+            player.id = this.players[i].id;
+            player.x = this.players[i].xPos;
+            player.y = this.players[i].yPos;
+            player.vx = i === 0 ? 0 : this.players[i].xInc;
+            player.vy = i === 0 ? 0 : this.players[i].yInc;
+            player.isRelated = this.players[i].isRelated;
+            player.isHit = this.players[i].isHit;
+            this.app.stage.addChild(player);
+            var text = new this.text(this.players[i].text, i === 0 ? playerStyle : opponentStyle);
+            player.addChild(text);
+            player.anchor.x = player.anchor.y = 0.5;
+            text.anchor.x = text.anchor.y = 0.5;
+        }
+        this.player = this.app.stage.children[0];
+        this.app.ticker.add(function (delta) { return _this.gameLoop(delta); });
+    };
+    OddWordOutComponent.prototype.gameLoop = function (delta) {
+        this.play(delta);
+    };
+    OddWordOutComponent.prototype.play = function (delta) {
+        var _this = this;
+        // Move characters
+        this.app.stage.children.forEach(function (child) {
+            child.x += child.vx;
+            child.y += child.vy;
+            if (child.id > 0 && _this.collisionTest(_this.player, child)) {
+                //console.log(`${this.player.text} hit ${child.text}: ${child.isRelated}`);
+                if (child.isRelated) {
+                    _this.app.stage.removeChild(child);
+                    _this.relatedWords.push(child.text);
+                }
+                else {
+                    _this.unrelatedWords.push(child.text);
+                }
+            }
+            // Wrap around screen
+            if (child.x > _this.app.renderer.screen.width) {
+                child.x = _this.app.renderer.screen.x;
+            }
+            if (child.y > _this.app.renderer.screen.height) {
+                child.y = _this.app.renderer.screen.y;
+            }
+            if (child.x < _this.app.renderer.screen.x) {
+                child.x = _this.app.renderer.screen.width;
+            }
+            if (child.y < _this.app.renderer.screen.y) {
+                child.y = _this.app.renderer.screen.height;
+            }
+        });
+        // intertia - decrease velocity if no key is being pressed
+        if (!this.keyPress) {
+            if (Math.ceil(this.player.vx * 100) / 100 == -0.01) {
+                this.player.vx = 0;
+            }
+            else {
+                if (this.player.vx != 0) {
+                    if (Math.ceil(this.player.vx * 100) / 100 >= 0) {
+                        this.player.vx += -0.01;
+                    }
+                    else {
+                        if (Math.floor(this.player.vx * 100) / 100 <= 0) {
+                            this.player.vx += 0.01;
+                        }
+                    }
+                }
+            }
+            if (Math.ceil(this.player.vy * 100) / 100 == -0.01) {
+                this.player.vy = 0;
+            }
+            else {
+                if (this.player.vy != 0) {
+                    if (Math.ceil(this.player.vy * 100) / 100 >= 0) {
+                        this.player.vy += -0.01;
+                    }
+                    else {
+                        if (Math.floor(this.player.vy * 100) / 100 <= 0) {
+                            this.player.vy += 0.01;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    OddWordOutComponent.prototype.collisionTest = function (r1, r2) {
+        //Define the variables we'll need to calculate
+        var hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
+        //hit will determine whether there's a collision
+        hit = false;
+        //Find the center points of each sprite
+        r1.centerX = r1.x + r1.width / 2;
+        r1.centerY = r1.y + r1.height / 2;
+        r2.centerX = r2.x + r2.width / 2;
+        r2.centerY = r2.y + r2.height / 2;
+        //Find the half-widths and half-heights of each sprite
+        r1.halfWidth = r1.width / 2;
+        r1.halfHeight = r1.height / 2;
+        r2.halfWidth = r2.width / 2;
+        r2.halfHeight = r2.height / 2;
+        //Calculate the distance vector between the sprites
+        vx = r1.centerX - r2.centerX;
+        vy = r1.centerY - r2.centerY;
+        //Figure out the combined half-widths and half-heights
+        combinedHalfWidths = r1.halfWidth + r2.halfWidth;
+        combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+        //Check for a collision on the x axis
+        if (Math.abs(vx) < combinedHalfWidths) {
+            //A collision might be occurring. Check for a collision on the y axis
+            if (Math.abs(vy) < combinedHalfHeights) {
+                //There's definitely a collision happening
+                hit = true;
+            }
+            else {
+                //There's no collision on the y axis
+                hit = false;
+            }
+        }
+        else {
+            //There's no collision on the x axis
+            hit = false;
+        }
+        //`hit` will be either `true` or `false`
+        return hit;
     };
     OddWordOutComponent.prototype.onMouseEvent = function ($event) {
         var childEvent = $event.path[0];
         console.log(childEvent);
-        // if(childEvent.id == "card" && $event.type == "click"){
-        //   this.miss += 1;
-        // }
-        // TODO indexOf is not working for some reason!!
-        //console.log(childEvent.classList.indexOf("ball"));
-        if (childEvent.classList[1] == "ball" || childEvent.classList[1] == "obstacle") {
-            //console.log('event type: ', $event.type);
-            this.gameObjectEvent(childEvent.id, $event.type);
-        }
     };
-    OddWordOutComponent.prototype.onKeyEvent = function ($event) {
+    OddWordOutComponent.prototype.onKeyUp = function () {
+        this.keyPress = false;
+    };
+    OddWordOutComponent.prototype.onKeyDown = function ($event) {
+        this.keyPress = true;
         var key = $event.key;
         switch (key) {
             case "ArrowLeft": {
                 this.movementPaused = false;
-                this.gameObjects[0].xInc += this.gameObjects[0].xInc < 25 ? -0.2 : 0;
+                this.player.vx += -0.2;
                 break;
             }
             case "ArrowRight": {
                 this.movementPaused = false;
-                this.gameObjects[0].xInc += this.gameObjects[0].xInc > -25 ? 0.2 : 0;
+                this.player.vx += 0.2;
                 break;
             }
             case "ArrowDown": {
                 this.movementPaused = false;
-                this.gameObjects[0].yInc += this.gameObjects[0].yInc < 25 ? 0.2 : 0;
+                this.player.vy += 0.2;
                 break;
             }
             case "ArrowUp": {
                 this.movementPaused = false;
-                this.gameObjects[0].yInc += this.gameObjects[0].yInc > -25 ? -0.2 : 0;
+                this.player.vy += -0.2;
                 break;
             }
             case " ": {
@@ -317,145 +457,24 @@ var OddWordOutComponent = /** @class */ (function () {
             }
         }
     };
-    OddWordOutComponent.prototype.newGameObject = function (className, background, text, isRelated, xPos, yPos, xInc, yInc) {
-        var gameObject = new _game_object_model__WEBPACK_IMPORTED_MODULE_1__["GameObject"]();
-        gameObject.id = this.gameObjectNumber;
-        gameObject.className = className;
-        gameObject.background = background;
-        gameObject.text = text;
-        gameObject.isRelated = isRelated;
-        gameObject.xPos = xPos;
-        gameObject.yPos = yPos;
-        gameObject.xInc = xInc;
-        gameObject.yInc = yInc;
-        gameObject.isHit = false;
-        this.gameObjects.push(gameObject);
-        this.gameObjectNumber++;
-    };
-    OddWordOutComponent.prototype.gameObjectEvent = function (id, eventType) {
-        switch (eventType) {
-            // case "click": {
-            //   this.hit += 1;
-            //   break;
-            // }
-            case "mouseenter": {
-                this.temporaryGameObject = Object.assign({}, this.gameObjects[id]);
-                this.gameObjects[id].xInc = 0;
-                this.gameObjects[id].yInc = 0;
-                // The version below will ensure nested objects include. I'm not using it
-                // at the moment because there may be a small performance hit.
-                //this.temporaryGameObject = JSON.parse(JSON.stringify(this.gameObjects[id]));
-                //this.gameObjects[id].background = "cyan";
-                //this.foundObject += 1;
-                break;
-            }
-            case "mouseleave": {
-                this.gameObjects[id].xInc = this.temporaryGameObject.xInc;
-                this.gameObjects[id].yInc = this.temporaryGameObject.yInc;
-                //this.gameObjects[id].background = this.temporaryGameObject.background;
-                break;
-            }
-        }
-    };
-    OddWordOutComponent.prototype.startMovement = function () {
-        var _this = this;
-        this.interval = setInterval(function () {
-            var related = 0;
-            var unrelated = 0;
-            var relatedHits = 0;
-            var unrelatedHits = 0;
-            for (var i = 0; i < _this.gameObjects.length; i++) {
-                var objectId = _this.gameObjects[i].id;
-                _this.frame(objectId);
-                if (objectId > 0) {
-                    _this.testForCollision(_this.gameObjects[objectId]);
-                    if (!_this.gameObjects[objectId].isRelated) {
-                        unrelated++;
-                        if (_this.gameObjects[objectId].isHit) {
-                            unrelatedHits++;
-                        }
-                    }
-                    else {
-                        related++;
-                        if (_this.gameObjects[objectId].isHit) {
-                            relatedHits++;
-                        }
-                    }
-                }
-            }
-            if (unrelated == unrelatedHits) {
-                _this.gameOver();
-            }
-            if (related == relatedHits) {
-                _this.nextLevel();
-            }
-        }, 0.5 * 60);
-    };
-    OddWordOutComponent.prototype.startPixiMovement = function () {
-    };
-    OddWordOutComponent.prototype.frame = function (objectId) {
-        if (!this.movementStarted || this.movementPaused) {
-            return;
-        }
-        ;
-        if (this.gameObjects[objectId].xPos >= this.xMax || this.gameObjects[objectId].xPos <= this.xMin) {
-            this.gameObjects[objectId].xInc = -this.gameObjects[objectId].xInc;
-        }
-        if (this.gameObjects[objectId].yPos >= this.yMax || this.gameObjects[objectId].yPos <= this.yMin) {
-            this.gameObjects[objectId].yInc = -this.gameObjects[objectId].yInc;
-        }
-        this.gameObjects[objectId].xPos += this.gameObjects[objectId].xInc;
-        this.gameObjects[objectId].yPos += this.gameObjects[objectId].yInc;
-    };
-    OddWordOutComponent.prototype.testForCollision = function (gameObject) {
-        var myObject = this.gameObjects[0];
-        this.cardColor = "lightyellow";
-        if (gameObject.xPos <= myObject.xPos + 50 &&
-            gameObject.xPos + 50 >= myObject.xPos &&
-            gameObject.yPos <= myObject.yPos + 50 &&
-            gameObject.yPos + 50 >= myObject.yPos) {
-            gameObject.isHit = true;
-            if (!gameObject.isRelated) {
-                gameObject.background = "red";
-                this.relatedWords.push(gameObject.text);
-                //this.score += 1;        
-            }
-            else {
-                //this.cardColor = "yellow";
-                gameObject.background = "orange";
-                this.unrelatedWords.push(gameObject.text);
-                //this.score -= 1;        
-            }
-            var xPosNew = this.randomGenerator(gameObject.xPos - 50, gameObject.xPos + 100);
-            var yPosNew = this.randomGenerator(gameObject.yPos - 50, gameObject.yPos + 100);
-            if (xPosNew >= this.xMax - 50) {
-                xPosNew = this.xMax - 50;
-            }
-            ;
-            if (yPosNew >= this.xMax - 50) {
-                yPosNew = this.yMax - 50;
-            }
-            ;
-            if (xPosNew < 0) {
-                xPosNew = 0;
-            }
-            ;
-            if (yPosNew < 0) {
-                yPosNew = 0;
-            }
-            ;
-            gameObject.xPos = xPosNew;
-            gameObject.yPos = yPosNew;
-            gameObject.xInc = -gameObject.xInc;
-            gameObject.yInc = -gameObject.yInc;
-        }
+    OddWordOutComponent.prototype.newPlayerObject = function (className, text, isRelated, xPos, yPos, xInc, yInc) {
+        var playerObject = new _player_object_model__WEBPACK_IMPORTED_MODULE_1__["PlayerObject"]();
+        playerObject.id = this.playerObjectNumber;
+        playerObject.className = className;
+        playerObject.text = text;
+        playerObject.isRelated = isRelated;
+        playerObject.xPos = xPos;
+        playerObject.yPos = yPos;
+        playerObject.xInc = xInc;
+        playerObject.yInc = yInc;
+        playerObject.isHit = false;
+        this.players.push(playerObject);
+        this.playerObjectNumber++;
     };
     OddWordOutComponent.prototype.gameOver = function () {
-        clearInterval(this.interval);
         this.message = "Game Over!";
     };
     OddWordOutComponent.prototype.nextLevel = function () {
-        clearInterval(this.interval);
         this.message = "Congratulations!";
     };
     OddWordOutComponent.prototype.randomGenerator = function (min, max) {
@@ -477,6 +496,26 @@ var OddWordOutComponent = /** @class */ (function () {
         __metadata("design:paramtypes", [_shared_word_service__WEBPACK_IMPORTED_MODULE_2__["WordService"]])
     ], OddWordOutComponent);
     return OddWordOutComponent;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/app/odd-word-out/player-object.model.ts":
+/*!*****************************************************!*\
+  !*** ./src/app/odd-word-out/player-object.model.ts ***!
+  \*****************************************************/
+/*! exports provided: PlayerObject */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PlayerObject", function() { return PlayerObject; });
+var PlayerObject = /** @class */ (function () {
+    function PlayerObject() {
+    }
+    return PlayerObject;
 }());
 
 

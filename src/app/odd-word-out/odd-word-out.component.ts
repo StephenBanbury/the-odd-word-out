@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { GameObject } from './game-object.model';
+import { PlayerObject } from './player-object.model';
 import { WordService } from '../shared/word-service';
 import { IThesaurus } from '../shared/thesaurus';
 
@@ -10,7 +10,6 @@ import { Sprite, Application, Rectangle, Texture, Container, DisplayObject, Text
   templateUrl: './odd-word-out.component.html',
   styleUrls: ['./odd-word-out.component.css']
 })
-
 
 export class  OddWordOutComponent implements OnInit {
 
@@ -43,10 +42,10 @@ export class  OddWordOutComponent implements OnInit {
   public relatedWordNumber: number;
   public unrelatedWordNumber: number;
 
-  gameObjects = Array<GameObject>();
-  gameObjectNumber: number; 
+  players = Array<PlayerObject>();
+  playerObjectNumber: number; 
   notRelatedNumber: number;
-  temporaryGameObject: GameObject;
+  temporaryPlayerObject: PlayerObject;
 
   constructor(private wordService: WordService) {
 
@@ -61,10 +60,10 @@ export class  OddWordOutComponent implements OnInit {
     this.relatedWords = new Array<string>();
     this.unrelatedWords = new Array<string>();
 
-    this.gameObjectNumber = 0;
+    this.playerObjectNumber = 0;
     this.notRelatedNumber = 0;
 
-    this.gameObjects = new Array<GameObject>();             
+    this.players = new Array<PlayerObject>();             
   }
 
   ngOnInit() {        
@@ -73,7 +72,7 @@ export class  OddWordOutComponent implements OnInit {
 
     this.wordService.getThesaurus(this.seedWord).subscribe( 
       thesaurus => { 
-        this.setupGame(thesaurus, unrelatedWords);
+        this.setupPlayerAttributes(thesaurus, unrelatedWords);
       }
     );
 
@@ -114,8 +113,25 @@ export class  OddWordOutComponent implements OnInit {
       console.log("Load error");
   }
 
+  setupPlayerAttributes(thesaurus: IThesaurus, nonRelatedWords: string[]) {
+
+    let nouns =  thesaurus.noun.syn.slice(0, this.relatedWordNumber);
+    console.log(nouns);
+
+    this.newPlayerObject("myPlayer", this.seedWord, true, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), 0, 0);
+
+    nouns.forEach(noun => {
+      this.newPlayerObject("otherPlayer", noun, true, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), this.randomGenerator(-2, 2), this.randomGenerator(-2, 2));
+    });
+
+    nonRelatedWords.forEach(word => {
+      this.newPlayerObject("otherPlayer", word, false, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), this.randomGenerator(-2, 2), this.randomGenerator(-2, 2));
+    })
+    
+    this.players.forEach(obj => !obj.isRelated ? this.notRelatedNumber++ : false);
+  }
   
-  // TODO combine setupPixi and setupGame
+  // TODO combine setupPixi and setupGame?
   setupPixi() {
     
     let playerStyle = new PIXI.TextStyle({
@@ -135,7 +151,7 @@ export class  OddWordOutComponent implements OnInit {
       wordWrapWidth: 440
     });
 
-    let obstacleStyle = new PIXI.TextStyle({
+    let opponentStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
       fontSize: 24,
       fontStyle: 'italic',
@@ -152,22 +168,25 @@ export class  OddWordOutComponent implements OnInit {
       wordWrapWidth: 440
     });
      
-    for(let i = 0; i < this.gameObjects.length; i++){      
-      let obstacle = i === 0 
+    for(let i = 0; i < this.players.length; i++){      
+      let player = i === 0 
         ? new this.Sprite(this.resources["../../assets/images/boy2.jpg"].texture) 
         : new this.Sprite(this.resources["../../assets/images/boy1.jpg"].texture);
+      
+      player.id = this.players[i].id;
+      player.x = this.players[i].xPos;
+      player.y = this.players[i].yPos;
+      player.vx = i === 0 ? 0 : this.players[i].xInc;
+      player.vy = i === 0 ? 0 : this.players[i].yInc;
+      player.isRelated = this.players[i].isRelated;
+      player.isHit = this.players[i].isHit;
+      player.text = this.players[i].text;
 
-      obstacle.gameObject = this.gameObjects[i];
-      obstacle.position.set(this.gameObjects[i].xPos, this.gameObjects[i].yPos);
+      this.app.stage.addChild(player)
 
-      obstacle.vx = i === 0 ? 0 : this.gameObjects[i].xInc;
-      obstacle.vy = i === 0 ? 0 : this.gameObjects[i].yInc;
-
-      this.app.stage.addChild(obstacle)
-
-      let text = new this.text(obstacle.gameObject.text, i === 0 ? playerStyle : obstacleStyle);
-      obstacle.addChild(text);
-      obstacle.anchor.x = obstacle.anchor.y = 0.5;
+      let text = new this.text(this.players[i].text, i === 0 ? playerStyle : opponentStyle);
+      player.addChild(text);
+      player.anchor.x = player.anchor.y = 0.5;
       text.anchor.x = text.anchor.y = 0.5;
     }    
 
@@ -189,13 +208,14 @@ export class  OddWordOutComponent implements OnInit {
       child.x += child.vx;
       child.y += child.vy;
 
-      if(child.gameObject.id > 0 && this.collisionTest(this.player, child)){
-        console.log(`${this.player.gameObject.text} hit ${child.gameObject.text}: ${child.gameObject.isRelated}`);
-        if(child.gameObject.isRelated){
+      if(child.id > 0 && this.collisionTest(this.player, child)){
+        //console.log(`${this.player.text} hit ${child.text}: ${child.isRelated}`);
+        if(child.isRelated){
           this.app.stage.removeChild(child);   
-          this.relatedWords.push(child.gameObject.text);  
+          this.relatedWords.push(child.text); 
+          console.log(this.relatedWords); 
         } else {               
-          this.unrelatedWords.push(child.gameObject.text);     
+          this.unrelatedWords.push(child.text);     
         }
       }
 
@@ -298,24 +318,6 @@ export class  OddWordOutComponent implements OnInit {
     return hit;
   }
 
-  setupGame(thesaurus: IThesaurus, nonRelatedWords: string[]) {
-
-    let nouns =  thesaurus.noun.syn.slice(0, this.relatedWordNumber);
-    console.log(nouns);
-
-    this.newGameObject("ball", "lightgreen", this.seedWord, true, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), 0, 0);
-
-    nouns.forEach(noun => {
-      this.newGameObject("obstacle", "lightblue", noun, true, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), this.randomGenerator(-2, 2), this.randomGenerator(-2, 2));
-    });
-
-    nonRelatedWords.forEach(word => {
-      this.newGameObject("obstacle", "lightblue", word, false, this.randomGenerator(1, this.xMax), this.randomGenerator(1, this.yMax), this.randomGenerator(-2, 2), this.randomGenerator(-2, 2));
-    })
-    
-    this.gameObjects.forEach(obj => !obj.isRelated ? this.notRelatedNumber++ : false);
-  }
-
   onMouseEvent($event) {
     let childEvent = $event.path[0];
     console.log(childEvent);
@@ -360,20 +362,19 @@ export class  OddWordOutComponent implements OnInit {
     }
   }
 
-  private newGameObject(className: string, background: string, text: string, isRelated: boolean, xPos: number, yPos: number, xInc: number, yInc: number) {
-    let gameObject = new GameObject();
-    gameObject.id = this.gameObjectNumber;
-    gameObject.className = className;
-    gameObject.background = background;
-    gameObject.text = text;
-    gameObject.isRelated = isRelated;
-    gameObject.xPos = xPos;
-    gameObject.yPos = yPos;
-    gameObject.xInc = xInc;
-    gameObject.yInc = yInc;
-    gameObject.isHit = false;
-    this.gameObjects.push(gameObject);
-    this.gameObjectNumber++;
+  private newPlayerObject(className: string, text: string, isRelated: boolean, xPos: number, yPos: number, xInc: number, yInc: number) {
+    let playerObject = new PlayerObject();
+    playerObject.id = this.playerObjectNumber;
+    playerObject.className = className;
+    playerObject.text = text;
+    playerObject.isRelated = isRelated;
+    playerObject.xPos = xPos;
+    playerObject.yPos = yPos;
+    playerObject.xInc = xInc;
+    playerObject.yInc = yInc;
+    playerObject.isHit = false;
+    this.players.push(playerObject);
+    this.playerObjectNumber++;
   }
 
   private gameOver() {

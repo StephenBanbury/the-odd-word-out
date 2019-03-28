@@ -3,6 +3,9 @@
   
   <div #pixiContainer (click)="onMouseEvent($event)"></div>
 
+  <div *ngFor="let relatedWord of relatedWords">
+    <p>{{ relatedWord }}</p>
+  </div>
   <!-- <div id="card" class="center" [style.background-color]="cardColor" (click)="onMouseEvent($event)">
     <h1>{{message}}</h1>
   </div> -->

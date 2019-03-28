@@ -1,8 +1,7 @@
-export class GameObject {
+export class PlayerObject {
   
     public id: number;
     public className: string;
-    public background: string;
     public text: string;
     public xPos: number;
     public yPos: number;
