@@ -1,0 +1,9 @@
+<h2>Seek out words or phrases related to "{{seedWord}}". Avoid those that are unrelated.</h2>
+<span id="container" (document:keydown)="onKeyDown($event)" (document:keyup)="onKeyUp()">
+  
+  <div #pixiContainer (click)="onMouseEvent($event)"></div>
+
+  <!-- <div id="card" class="center" [style.background-color]="cardColor" (click)="onMouseEvent($event)">
+    <h1>{{message}}</h1>
+  </div> -->
+</span>
